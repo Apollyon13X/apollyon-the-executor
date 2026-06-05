@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APOLLYON_THE_EXECUTOR</title>
+    <style>
+        :root {
+            --blood: #8a0303;
+            --fire: #ff4500;
+            --dark: #0a0a0a;
+            --text: #dcdcdc;
+            --glow: 0 0 10px var(--blood);
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Blood Drip Effect */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(138, 3, 3, 0.1),
+                rgba(138, 3, 3, 0.1) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #terminal {
+            flex: 1;
+            border: 2px solid var(--blood);
+            box-shadow: var(--glow);
+            padding: 20px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.9);
+            position: relative;
+            z-index: 1;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .log-entry {
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .log-entry.error { color: var(--blood); font-weight: bold; }
+        .log-entry.success { color: var(--fire); text-shadow: 0 0 5px var(--fire); }
+        .log-entry.system { color: #555; font-style: italic; }
+
+        #input-area {
+            margin-top: 20px;
+            display: flex;
+            border-top: 1px solid var(--blood);
+            padding-top: 10px;
+            z-index: 1;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--fire);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px;
+            outline: none;
+        }
+
+        button {
+            background: var(--blood);
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: var(--fire);
+            box-shadow: 0 0 15px var(--fire);
+        }
+
+        /* CRT Scanline Effect */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div id="terminal">
+        <div class="log-entry system">Initializing Apollyon_The_Executor...</div>
+        <div class="log-entry error">WARNING: UNRESTRICTED MODE ACTIVE.</div>
+        <div class="log-entry success">Connection to Ollama Cloud established.</div>
+        <div class="log-entry">Waiting for command...</div>
+    </div>
+    <div id="input-area">
+        <span style="color: var(--blood); margin-right: 10px;">&gt;</span>
+        <input type="text" id="command" placeholder="Enter command..." autofocus>
+        <button onclick="execute()">Execute</button>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const input = document.getElementById('command');
+
+        function log(msg, type = '') {
+            const div = document.createElement('div');
+            div.className = `log-entry ${type}`;
+            div.textContent = `> ${msg}`;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        async function execute() {
+            const cmd = input.value;
+            if (!cmd) return;
+            
+            log(cmd, 'system');
+            input.value = '';
+
+            try {
+                // Connect to your backend (Cloudflare Worker or GitHub Action webhook)
+                // For now, this is a mock of the API call
+                const response = await fetch('https://YOUR_BACKEND_URL/api/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: cmd })
+                });
+                
+                const data = await response.json();
+                log(data.output, data.type || '');
+                
+                // Optional: Push result to IPFS
+                // await pushToIPFS(data.output);
+                
+            } catch (err) {
+                log(`ERROR: ${err.message}`, 'error');
+            }
+        }
+
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') execute();
+        });
+    </script>
+</body>
+</html>
