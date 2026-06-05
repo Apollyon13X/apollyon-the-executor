@@ -2,8 +2,5 @@ name = "apollyon-executor-api"
 main = "worker.js"
 compatibility_date = "2024-06-05"
 
-# Disable automatic asset detection if any exists
-# assets = { directory = "ui" } <-- MAKE SURE THIS LINE IS DELETED OR COMMENTED
-
 [observability]
 enabled = true
