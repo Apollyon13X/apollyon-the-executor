@@ -144,7 +144,7 @@
             try {
                 // Connect to your backend (Cloudflare Worker or GitHub Action webhook)
                 // For now, this is a mock of the API call
-                const response = await fetch('https://YOUR_BACKEND_URL/api/execute', {
+                const response = await fetch('https://apollyon13x.workers.dev', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ command: cmd })
